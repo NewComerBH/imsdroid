@@ -1,35 +1,11 @@
-/*
-* Copyright (C) 2010 Mamadou Diop.
-*
-* Contact: Mamadou Diop <diopmamadou(at)doubango.org>
-*	
-* This file is part of imsdroid Project (http://code.google.com/p/imsdroid)
-*
-* imsdroid is free software: you can redistribute it and/or modify it under the terms of 
-* the GNU General Public License as published by the Free Software Foundation, either version 3 
-* of the License, or (at your option) any later version.
-*	
-* imsdroid is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-* See the GNU General Public License for more details.
-*	
-* You should have received a copy of the GNU General Public License along 
-* with this program; if not, write to the Free Software Foundation, Inc., 
-* 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*
-*/
-
 package org.doubango.imsdroid.Screens;
 
-import org.doubango.imsdroid.IMSDroid;
 import org.doubango.imsdroid.R;
-import org.doubango.imsdroid.Model.Configuration;
-import org.doubango.imsdroid.Model.Configuration.CONFIGURATION_ENTRY;
-import org.doubango.imsdroid.Model.Configuration.CONFIGURATION_SECTION;
+import org.doubango.imsdroid.ServiceManager;
 import org.doubango.imsdroid.Services.IConfigurationService;
-import org.doubango.imsdroid.Services.Impl.ServiceManager;
+import org.doubango.imsdroid.Utils.ConfigurationUtils;
+import org.doubango.imsdroid.Utils.ConfigurationUtils.ConfigurationEntry;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -37,25 +13,20 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-/**
- * ScreenGeneral
- * @author Mamadou Diop
- *
- */
-public class ScreenGeneral  extends Screen {
-	
-	private Spinner spAudioPlaybackLevel;
-	private CheckBox cbFullScreenVideo;
-	private CheckBox cbFFC;
-	private CheckBox cbVflip;
-	private CheckBox cbAutoStart;
-	private CheckBox cbInterceptOutgoingCalls;
-	private EditText etEnumDomain;
-	
-	private final IConfigurationService configurationService;
+public class ScreenGeneral  extends BaseScreen {
 	private final static String TAG = ScreenGeneral.class.getCanonicalName();
 	
-	private final static AudioPlayBackLevel[] audioPlaybackLevels =  new AudioPlayBackLevel[]{
+	private Spinner mSpAudioPlaybackLevel;
+	private CheckBox mCbFullScreenVideo;
+	private CheckBox mCbFFC;
+	private CheckBox mCbVflip;
+	private CheckBox mCbAutoStart;
+	private CheckBox mCbInterceptOutgoingCalls;
+	private EditText mEtEnumDomain;
+	
+	private final IConfigurationService mConfigurationService;
+	
+	private final static AudioPlayBackLevel[] sAudioPlaybackLevels =  new AudioPlayBackLevel[]{
 					new AudioPlayBackLevel(0.25f, "Low"),
 					new AudioPlayBackLevel(0.50f, "Medium"),
 					new AudioPlayBackLevel(0.75f, "High"),
@@ -63,79 +34,74 @@ public class ScreenGeneral  extends Screen {
 			};
 	
 	public ScreenGeneral() {
-		super(SCREEN_TYPE.GENERAL_T, ScreenGeneral.class.getCanonicalName());
+		super(SCREEN_TYPE.GENERAL_T, TAG);
 		
-		this.configurationService = ServiceManager.getConfigurationService();
+		mConfigurationService = ServiceManager.getConfigurationService();
 	}
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_general);
         
-        this.cbFullScreenVideo = (CheckBox)this.findViewById(R.id.screen_general_checkBox_fullscreen);
-        this.cbInterceptOutgoingCalls = (CheckBox)this.findViewById(R.id.screen_general_checkBox_interceptCall);
-        this.cbFFC = (CheckBox)this.findViewById(R.id.screen_general_checkBox_ffc);
-        this.cbVflip = (CheckBox)this.findViewById(R.id.screen_general_checkBox_videoflip);
-        this.cbAutoStart = (CheckBox)this.findViewById(R.id.screen_general_checkBox_autoStart);
-        this.spAudioPlaybackLevel = (Spinner)this.findViewById(R.id.screen_general_spinner_playback_level);
-        this.etEnumDomain = (EditText)this.findViewById(R.id.screen_general_editText_enum_domain);
+        mCbFullScreenVideo = (CheckBox)findViewById(R.id.screen_general_checkBox_fullscreen);
+        mCbInterceptOutgoingCalls = (CheckBox)findViewById(R.id.screen_general_checkBox_interceptCall);
+        mCbFFC = (CheckBox)findViewById(R.id.screen_general_checkBox_ffc);
+        mCbVflip = (CheckBox)findViewById(R.id.screen_general_checkBox_videoflip);
+        mCbAutoStart = (CheckBox)findViewById(R.id.screen_general_checkBox_autoStart);
+        mSpAudioPlaybackLevel = (Spinner)findViewById(R.id.screen_general_spinner_playback_level);
+        mEtEnumDomain = (EditText)findViewById(R.id.screen_general_editText_enum_domain);
         
         // Audio Playback levels
-        ArrayAdapter<AudioPlayBackLevel> adapter = new ArrayAdapter<AudioPlayBackLevel>(this, android.R.layout.simple_spinner_item, ScreenGeneral.audioPlaybackLevels);
+        ArrayAdapter<AudioPlayBackLevel> adapter = new ArrayAdapter<AudioPlayBackLevel>(this, android.R.layout.simple_spinner_item, ScreenGeneral.sAudioPlaybackLevels);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.spAudioPlaybackLevel.setAdapter(adapter);
+        mSpAudioPlaybackLevel.setAdapter(adapter);
         
-        this.cbFullScreenVideo.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.FULL_SCREEN_VIDEO, Configuration.DEFAULT_GENERAL_FULL_SCREEN_VIDEO));
-        this.cbInterceptOutgoingCalls.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.INTERCEPT_OUTGOING_CALLS, Configuration.DEFAULT_GENERAL_INTERCEPT_OUTGOING_CALLS));
-        this.cbFFC.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.FFC, Configuration.DEFAULT_GENERAL_FFC));
-        this.cbVflip.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.VIDEO_FLIP, Configuration.DEFAULT_GENERAL_FLIP_VIDEO));
-        SharedPreferences settings = getSharedPreferences(IMSDroid.getContext().getPackageName(), 0);
-        this.cbAutoStart.setChecked((settings != null && settings.getBoolean("autostarts", Configuration.DEFAULT_GENERAL_AUTOSTART)));
-        this.spAudioPlaybackLevel.setSelection(this.getSpinnerIndex(
-				this.configurationService.getFloat(
-						CONFIGURATION_SECTION.GENERAL,
-						CONFIGURATION_ENTRY.AUDIO_PLAY_LEVEL,
-						Configuration.DEFAULT_GENERAL_AUDIO_PLAY_LEVEL)));
-        this.etEnumDomain.setText(this.configurationService.getString(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.ENUM_DOMAIN, Configuration.DEFAULT_GENERAL_ENUM_DOMAIN));
+        mCbFullScreenVideo.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.GENERAL_FULL_SCREEN_VIDEO, ConfigurationUtils.DEFAULT_GENERAL_FULL_SCREEN_VIDEO));
+        mCbInterceptOutgoingCalls.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.GENERAL_INTERCEPT_OUTGOING_CALLS, ConfigurationUtils.DEFAULT_GENERAL_INTERCEPT_OUTGOING_CALLS));
+        mCbFFC.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.GENERAL_USE_FFC, ConfigurationUtils.DEFAULT_GENERAL_USE_FFC));
+        mCbVflip.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.GENERAL_VIDEO_FLIP, ConfigurationUtils.DEFAULT_GENERAL_FLIP_VIDEO));
+        mCbAutoStart.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.GENERAL_AUTOSTART, ConfigurationUtils.DEFAULT_GENERAL_AUTOSTART));
         
-        this.addConfigurationListener(this.cbFullScreenVideo);
-        this.addConfigurationListener(this.cbInterceptOutgoingCalls);
-        this.addConfigurationListener(this.cbFFC);
-        this.addConfigurationListener(this.cbVflip);
-        this.addConfigurationListener(this.cbAutoStart);
-        this.addConfigurationListener(this.etEnumDomain);
-        this.addConfigurationListener(this.spAudioPlaybackLevel);
+        mSpAudioPlaybackLevel.setSelection(getSpinnerIndex(
+				mConfigurationService.getFloat(
+						ConfigurationEntry.GENERAL_AUDIO_PLAY_LEVEL,
+						ConfigurationUtils.DEFAULT_GENERAL_AUDIO_PLAY_LEVEL)));
+        mEtEnumDomain.setText(mConfigurationService.getString(ConfigurationEntry.GENERAL_ENUM_DOMAIN, ConfigurationUtils.DEFAULT_GENERAL_ENUM_DOMAIN));
+        
+        super.addConfigurationListener(mCbFullScreenVideo);
+        super.addConfigurationListener(mCbInterceptOutgoingCalls);
+        super.addConfigurationListener(mCbFFC);
+        super.addConfigurationListener(mCbVflip);
+        super.addConfigurationListener(mCbAutoStart);
+        super.addConfigurationListener(mEtEnumDomain);
+        super.addConfigurationListener(mSpAudioPlaybackLevel);
 	}
 	
 	protected void onPause() {
-		if(this.computeConfiguration){
+		if(super.mComputeConfiguration){
 			
-			this.configurationService.setBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.FULL_SCREEN_VIDEO, this.cbFullScreenVideo.isChecked());
-			this.configurationService.setBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.INTERCEPT_OUTGOING_CALLS, this.cbInterceptOutgoingCalls.isChecked());
-			this.configurationService.setBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.FFC, this.cbFFC.isChecked());
-			this.configurationService.setBoolean(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.VIDEO_FLIP, this.cbVflip.isChecked());
-			this.configurationService.setFloat(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.AUDIO_PLAY_LEVEL, ((AudioPlayBackLevel)this.spAudioPlaybackLevel.getSelectedItem()).value);
-			this.configurationService.setString(CONFIGURATION_SECTION.GENERAL, CONFIGURATION_ENTRY.ENUM_DOMAIN, this.etEnumDomain.getText().toString());
-			
-			SharedPreferences settings = getSharedPreferences(IMSDroid.getContext().getPackageName(), 0);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putBoolean("autostarts", this.cbAutoStart.isChecked());
-			editor.commit();
+			mConfigurationService.putBoolean(ConfigurationEntry.GENERAL_AUTOSTART, mCbAutoStart.isChecked());
+			mConfigurationService.putBoolean(ConfigurationEntry.GENERAL_FULL_SCREEN_VIDEO, mCbFullScreenVideo.isChecked());
+			mConfigurationService.putBoolean(ConfigurationEntry.GENERAL_INTERCEPT_OUTGOING_CALLS, mCbInterceptOutgoingCalls.isChecked());
+			mConfigurationService.putBoolean(ConfigurationEntry.GENERAL_USE_FFC, mCbFFC.isChecked());
+			mConfigurationService.putBoolean(ConfigurationEntry.GENERAL_VIDEO_FLIP, mCbVflip.isChecked());
+			mConfigurationService.putFloat(ConfigurationEntry.GENERAL_AUDIO_PLAY_LEVEL, ((AudioPlayBackLevel)mSpAudioPlaybackLevel.getSelectedItem()).mValue);
+			mConfigurationService.putString(ConfigurationEntry.GENERAL_ENUM_DOMAIN, mEtEnumDomain.getText().toString());
 			
 			// Compute
-			if(!this.configurationService.compute()){
-				Log.e(ScreenGeneral.TAG, "Failed to Compute() configuration");
+			if(!mConfigurationService.commit()){
+				Log.e(TAG, "Failed to commit() configuration");
 			}
 			
-			this.computeConfiguration = false;
+			super.mComputeConfiguration = false;
 		}
 		super.onPause();
 	}
 	
 	
 	private int getSpinnerIndex(float value){
-		for(int i = 0; i< ScreenGeneral.audioPlaybackLevels.length; i++){
-			if(ScreenGeneral.audioPlaybackLevels[i].value == value){
+		for(int i = 0; i< sAudioPlaybackLevels.length; i++){
+			if(sAudioPlaybackLevels[i].mValue == value){
 				return i;
 			}
 		}
@@ -143,17 +109,17 @@ public class ScreenGeneral  extends Screen {
 	}
 	
 	static class AudioPlayBackLevel{
-		float value;
-		String description;
+		float mValue;
+		String mDescription;
 		
 		AudioPlayBackLevel(float value, String description){
-			this.value = value;
-			this.description = description;
+			mValue = value;
+			mDescription = description;
 		}
 
 		@Override
 		public String toString() {
-			return this.description;
+			return mDescription;
 		}
 	}
 }

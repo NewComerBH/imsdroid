@@ -1,53 +1,32 @@
-/*
-* Copyright (C) 2010 Mamadou Diop.
-*
-* Contact: Mamadou Diop <diopmamadou(at)doubango.org>
-*	
-* This file is part of imsdroid Project (http://code.google.com/p/imsdroid)
-*
-* imsdroid is free software: you can redistribute it and/or modify it under the terms of 
-* the GNU General Public License as published by the Free Software Foundation, either version 3 
-* of the License, or (at your option) any later version.
-*	
-* imsdroid is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-* See the GNU General Public License for more details.
-*	
-* You should have received a copy of the GNU General Public License along 
-* with this program; if not, write to the Free Software Foundation, Inc., 
-* 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*
-*/
-
 package org.doubango.imsdroid.Screens;
 
 import org.doubango.imsdroid.R;
-import org.doubango.imsdroid.Model.Configuration;
-import org.doubango.imsdroid.Model.Configuration.CONFIGURATION_ENTRY;
-import org.doubango.imsdroid.Model.Configuration.CONFIGURATION_SECTION;
+import org.doubango.imsdroid.ServiceManager;
 import org.doubango.imsdroid.Services.IConfigurationService;
-import org.doubango.imsdroid.Services.Impl.ServiceManager;
+import org.doubango.imsdroid.Utils.ConfigurationUtils;
+import org.doubango.imsdroid.Utils.ConfigurationUtils.ConfigurationEntry;
+import org.doubango.imsdroid.Utils.StringUtils;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-public class ScreenIdentity  extends Screen {
+public class ScreenIdentity  extends BaseScreen {
+	private final static String TAG = ScreenIdentity.class.getCanonicalName();
+	private final IConfigurationService mConfigurationService;
 	
-	private final IConfigurationService ConfigurationService;
-	
-	private EditText etDisplayName;
-	private EditText etIMPU;
-	private EditText etIMPI;
-	private EditText etPassword;
-	private EditText etRealm;
-	private CheckBox cbEarlyIMS;
+	private EditText mEtDisplayName;
+	private EditText mEtIMPU;
+	private EditText mEtIMPI;
+	private EditText mEtPassword;
+	private EditText mEtRealm;
+	private CheckBox mCbEarlyIMS;
 	
 	public ScreenIdentity() {
-		super(SCREEN_TYPE.IDENTITY_T, ScreenIdentity.class.getCanonicalName());
+		super(SCREEN_TYPE.IDENTITY_T, TAG);
 		
-		this.ConfigurationService = ServiceManager.getConfigurationService();
+		mConfigurationService = ServiceManager.getConfigurationService();
 	}
 
 	
@@ -55,55 +34,49 @@ public class ScreenIdentity  extends Screen {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_identity);
         
-        // get controls
-        this.etDisplayName = (EditText)this.findViewById(R.id.screen_identity_editText_displayname);
-        this.etIMPU = (EditText)this.findViewById(R.id.screen_identity_editText_impu);
-        this.etIMPI = (EditText)this.findViewById(R.id.screen_identity_editText_impi);
-        this.etPassword = (EditText)this.findViewById(R.id.screen_identity_editText_password);
-        this.etRealm = (EditText)this.findViewById(R.id.screen_identity_editText_realm);
-        this.cbEarlyIMS = (CheckBox)this.findViewById(R.id.screen_identity_checkBox_earlyIMS);
+        mEtDisplayName = (EditText)findViewById(R.id.screen_identity_editText_displayname);
+        mEtIMPU = (EditText)findViewById(R.id.screen_identity_editText_impu);
+        mEtIMPI = (EditText)findViewById(R.id.screen_identity_editText_impi);
+        mEtPassword = (EditText)findViewById(R.id.screen_identity_editText_password);
+        mEtRealm = (EditText)findViewById(R.id.screen_identity_editText_realm);
+        mCbEarlyIMS = (CheckBox)findViewById(R.id.screen_identity_checkBox_earlyIMS);
         
-        // load values from configuration file (Do it before adding UI listeners)
-        this.etDisplayName.setText(this.ConfigurationService.getString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.DISPLAY_NAME, Configuration.DEFAULT_DISPLAY_NAME));
-        this.etIMPU.setText(this.ConfigurationService.getString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.IMPU, Configuration.DEFAULT_IMPU));
-        this.etIMPI.setText(this.ConfigurationService.getString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.IMPI, Configuration.DEFAULT_IMPI));
-        this.etPassword.setText(this.ConfigurationService.getString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.PASSWORD, ""));
-        this.etRealm.setText(this.ConfigurationService.getString(CONFIGURATION_SECTION.NETWORK, CONFIGURATION_ENTRY.REALM, Configuration.DEFAULT_REALM));
-        this.cbEarlyIMS.setChecked(this.ConfigurationService.getBoolean(CONFIGURATION_SECTION.NETWORK, CONFIGURATION_ENTRY.EARLY_IMS, Configuration.DEFAULT_EARLY_IMS));
+        mEtDisplayName.setText(mConfigurationService.getString(ConfigurationEntry.IDENTITY_DISPLAY_NAME, ConfigurationUtils.DEFAULT_IDENTITY_DISPLAY_NAME));
+        mEtIMPU.setText(mConfigurationService.getString(ConfigurationEntry.IDENTITY_IMPU, ConfigurationUtils.DEFAULT_IDENTITY_IMPU));
+        mEtIMPI.setText(mConfigurationService.getString(ConfigurationEntry.IDENTITY_IMPI, ConfigurationUtils.DEFAULT_IDENTITY_IMPI));
+        mEtPassword.setText(mConfigurationService.getString(ConfigurationEntry.IDENTITY_PASSWORD, StringUtils.empty()));
+        mEtRealm.setText(mConfigurationService.getString(ConfigurationEntry.NETWORK_REALM, ConfigurationUtils.DEFAULT_NETWORK_REALM));
+        mCbEarlyIMS.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.NETWORK_USE_EARLY_IMS, ConfigurationUtils.DEFAULT_NETWORK_USE_EARLY_IMS));
         
-        // add listeners (for the configuration)
-        this.addConfigurationListener(this.etDisplayName);
-        this.addConfigurationListener(this.etIMPU);
-        this.addConfigurationListener(this.etIMPI);
-        this.addConfigurationListener(this.etPassword);
-        this.addConfigurationListener(this.etRealm);
-        this.addConfigurationListener(this.cbEarlyIMS);
+        super.addConfigurationListener(mEtDisplayName);
+        super.addConfigurationListener(mEtIMPU);
+        super.addConfigurationListener(mEtIMPI);
+        super.addConfigurationListener(mEtPassword);
+        super.addConfigurationListener(mEtRealm);
+        super.addConfigurationListener(mCbEarlyIMS);
 	}	
 
 	protected void onPause() {
-		if(this.computeConfiguration){
-			this.ConfigurationService.setString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.DISPLAY_NAME, 
-				this.etDisplayName.getText().toString().trim());
-			this.ConfigurationService.setString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.IMPU, 
-				this.etIMPU.getText().toString().trim());
-			this.ConfigurationService.setString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.IMPI, 
-				this.etIMPI.getText().toString().trim());
-			this.ConfigurationService.setString(CONFIGURATION_SECTION.IDENTITY, CONFIGURATION_ENTRY.PASSWORD, 
-				this.etPassword.getText().toString().trim());
-			this.ConfigurationService.setString(CONFIGURATION_SECTION.NETWORK, CONFIGURATION_ENTRY.REALM, 
-				this.etRealm.getText().toString().trim());
-			this.ConfigurationService.setBoolean(CONFIGURATION_SECTION.NETWORK, CONFIGURATION_ENTRY.EARLY_IMS, 
-					this.cbEarlyIMS.isChecked());
-			
-			// update main activity info
-			ServiceManager.getMainActivity().setDisplayName(this.etDisplayName.getText().toString());
+		if(super.mComputeConfiguration){
+			mConfigurationService.putString(ConfigurationEntry.IDENTITY_DISPLAY_NAME, 
+					mEtDisplayName.getText().toString().trim());
+			mConfigurationService.putString(ConfigurationEntry.IDENTITY_IMPU, 
+					mEtIMPU.getText().toString().trim());
+			mConfigurationService.putString(ConfigurationEntry.IDENTITY_IMPI, 
+					mEtIMPI.getText().toString().trim());
+			mConfigurationService.putString(ConfigurationEntry.IDENTITY_PASSWORD, 
+					mEtPassword.getText().toString().trim());
+			mConfigurationService.putString(ConfigurationEntry.NETWORK_REALM, 
+					mEtRealm.getText().toString().trim());
+			mConfigurationService.putBoolean(ConfigurationEntry.NETWORK_USE_EARLY_IMS, 
+					mCbEarlyIMS.isChecked());
 			
 			// Compute
-			if(!this.ConfigurationService.compute()){
-				Log.e(this.getClass().getCanonicalName(), "Failed to Compute() configuration");
+			if(!mConfigurationService.commit()){
+				Log.e(TAG, "Failed to Commit() configuration");
 			}
 			
-			this.computeConfiguration = false;
+			super.mComputeConfiguration = false;
 		}
 		super.onPause();
 	}

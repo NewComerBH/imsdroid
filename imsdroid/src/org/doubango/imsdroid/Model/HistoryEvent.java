@@ -1,29 +1,8 @@
-/*
-* Copyright (C) 2010 Mamadou Diop.
-*
-* Contact: Mamadou Diop <diopmamadou(at)doubango.org>
-*	
-* This file is part of imsdroid Project (http://code.google.com/p/imsdroid)
-*
-* imsdroid is free software: you can redistribute it and/or modify it under the terms of 
-* the GNU General Public License as published by the Free Software Foundation, either version 3 
-* of the License, or (at your option) any later version.
-*	
-* imsdroid is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-* See the GNU General Public License for more details.
-*	
-* You should have received a copy of the GNU General Public License along 
-* with this program; if not, write to the Free Software Foundation, Inc., 
-* 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*
-*/
-
 package org.doubango.imsdroid.Model;
 
 import java.util.Date;
 
-import org.doubango.imsdroid.media.MediaType;
+import org.doubango.imsdroid.Media.MediaType;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -40,73 +19,73 @@ public abstract class HistoryEvent  implements Comparable<HistoryEvent> {
 	// For performance reasons, do not use Date() class
 	
 	@Element(name = "type", required = true)
-	protected MediaType mediaType;
+	protected MediaType mMediaType;
 	@Element(name = "start", required = true)
-	protected long startTime;
+	protected long mStartTime;
 	@Element(name = "end", required = true)
-	protected long endTime;
+	protected long mEndTime;
 	@Element(name = "remote", required = true)
-	protected String remoteParty;
+	protected String mRemoteParty;
 	@Element(name = "seen", required = true)
-	protected boolean seen;
+	protected boolean mSeen;
 	@Element(name = "status", required = true)
-	protected StatusType status;
+	protected StatusType mStatus;
 	
 	
 	protected HistoryEvent(MediaType mediaType, String remoteParty){
-		this.mediaType = mediaType;
-		this.startTime = new Date().getTime();
-		this.endTime = this.startTime;
-		this.remoteParty = remoteParty;
-		this.status = StatusType.Missed;
+		mMediaType = mediaType;
+		mStartTime = new Date().getTime();
+		mEndTime = mStartTime;
+		mRemoteParty = remoteParty;
+		mStatus = StatusType.Missed;
 	}
 	
 	public void setStartTime(long time){
-		this.startTime = time;
+		mStartTime = time;
 	}
 	
 	public long getStartTime(){
-		return this.startTime;
+		return mStartTime;
 	}
 	
 	public long getEndTime(){
-		return this.endTime;
+		return mEndTime;
 	}
 	
 	public void setEndTime(long time){
-		this.endTime = time;
+		mEndTime = time;
 	}
 	
 	public MediaType getMediaType(){
-		return this.mediaType;
+		return mMediaType;
 	}
 	
 	public String getRemoteParty(){
-		return this.remoteParty;
+		return mRemoteParty;
 	}
 	
 	public void setRemoteParty(String remoteParty){
-		this.remoteParty = remoteParty;
+		mRemoteParty = remoteParty;
 	}
 	
 	public boolean isSeen(){
-		return this.seen;
+		return mSeen;
 	}
 	
 	public void setSeen(boolean seen){
-		this.seen = seen;
+		mSeen = seen;
 	}
 	
 	public StatusType getStatus(){
-		return this.status;
+		return mStatus;
 	}
 	
 	public void setStatus(StatusType status){
-		this.status = status;
+		mStatus = status;
 	}
 	
 	@Override
 	public int compareTo(HistoryEvent another) {
-		return (int)(startTime - another.startTime);
+		return (int)(mStartTime - another.mStartTime);
 	}
 }

@@ -1,106 +1,86 @@
-/*
-* Copyright (C) 2010 Mamadou Diop.
-*
-* Contact: Mamadou Diop <diopmamadou(at)doubango.org>
-*	
-* This file is part of imsdroid Project (http://code.google.com/p/imsdroid)
-*
-* imsdroid is free software: you can redistribute it and/or modify it under the terms of 
-* the GNU General Public License as published by the Free Software Foundation, either version 3 
-* of the License, or (at your option) any later version.
-*	
-* imsdroid is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-* See the GNU General Public License for more details.
-*	
-* You should have received a copy of the GNU General Public License along 
-* with this program; if not, write to the Free Software Foundation, Inc., 
-* 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*
-*/
-
 package org.doubango.imsdroid.Screens;
 
 import org.doubango.imsdroid.R;
-import org.doubango.imsdroid.Model.Configuration;
-import org.doubango.imsdroid.Model.Configuration.CONFIGURATION_ENTRY;
-import org.doubango.imsdroid.Model.Configuration.CONFIGURATION_SECTION;
+import org.doubango.imsdroid.ServiceManager;
 import org.doubango.imsdroid.Services.IConfigurationService;
-import org.doubango.imsdroid.Services.Impl.ServiceManager;
+import org.doubango.imsdroid.Utils.ConfigurationUtils;
+import org.doubango.imsdroid.Utils.ConfigurationUtils.ConfigurationEntry;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-public class ScreenMessaging  extends Screen {
-
-	private EditText etConferenceFactory;
-	private EditText etSMSC;
-	private CheckBox cbBinarySMS;
-	private CheckBox cbMsrpSuccessReports;
-	private CheckBox cbMsrpFailureReports;
-	private CheckBox cbMsrpOMFDR;
-	private CheckBox cbMWI;
-	
-	private final IConfigurationService configurationService;
+public class ScreenMessaging  extends BaseScreen {
 	private final static String TAG = ScreenMessaging.class.getCanonicalName();
 	
+	private EditText mEtConferenceFactory;
+	private EditText mEtSMSC;
+	private CheckBox mCbBinarySMS;
+	private CheckBox mCbMsrpSuccessReports;
+	private CheckBox mCbMsrpFailureReports;
+	private CheckBox mCbMsrpOMFDR;
+	private CheckBox mCbMWI;
+	
+	private final IConfigurationService mConfigurationService;
+	
+	
 	public ScreenMessaging() {
-		super(SCREEN_TYPE.MESSAGING_T, ScreenMessaging.class.getCanonicalName());
-
-		// Services
-		this.configurationService = ServiceManager.getConfigurationService();
+		super(SCREEN_TYPE.MESSAGING_T, TAG);
+		
+		mConfigurationService = ServiceManager.getConfigurationService();
 	}
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.screen_messaging);
 		
 		// get controls
-        this.etConferenceFactory = (EditText)this.findViewById(R.id.screen_messaging_editText_conf_fact);
-        this.etSMSC = (EditText)this.findViewById(R.id.screen_messaging_editText_psi);
-        this.cbBinarySMS = (CheckBox)this.findViewById(R.id.screen_messaging_checkBox_binary_sms);
-        this.cbMsrpSuccessReports = (CheckBox)this.findViewById(R.id.screen_messaging_checkBox_msrp_success);
-        this.cbMsrpFailureReports = (CheckBox)this.findViewById(R.id.screen_messaging_checkBox_msrp_failure);
-        this.cbMsrpOMFDR = (CheckBox)this.findViewById(R.id.screen_messaging_checkBox_ofdr);
-        this.cbMWI = (CheckBox)this.findViewById(R.id.screen_messaging_checkBox_mwi);
+        mEtConferenceFactory = (EditText)findViewById(R.id.screen_messaging_editText_conf_fact);
+        mEtSMSC = (EditText)findViewById(R.id.screen_messaging_editText_psi);
+        mCbBinarySMS = (CheckBox)findViewById(R.id.screen_messaging_checkBox_binary_sms);
+        mCbMsrpSuccessReports = (CheckBox)findViewById(R.id.screen_messaging_checkBox_msrp_success);
+        mCbMsrpFailureReports = (CheckBox)findViewById(R.id.screen_messaging_checkBox_msrp_failure);
+        mCbMsrpOMFDR = (CheckBox)findViewById(R.id.screen_messaging_checkBox_ofdr);
+        mCbMWI = (CheckBox)findViewById(R.id.screen_messaging_checkBox_mwi);
         
         // load values from configuration file (do it before adding UI listeners)
-        this.etConferenceFactory.setText(this.configurationService.getString(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.CONF_FACT, Configuration.DEFAULT_RCS_CONF_FACT));
-        this.etSMSC.setText(this.configurationService.getString(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.SMSC, Configuration.DEFAULT_RCS_SMSC));
-        this.cbBinarySMS.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.BINARY_SMS, Configuration.DEFAULT_RCS_BINARY_SMS));
-        this.cbMsrpSuccessReports.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.MSRP_SUCCESS, Configuration.DEFAULT_RCS_MSRP_SUCCESS));
-        this.cbMsrpFailureReports.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.MSRP_FAILURE, Configuration.DEFAULT_RCS_MSRP_FAILURE));
-        this.cbMsrpOMFDR.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.OMAFDR, Configuration.DEFAULT_RCS_OMAFDR));
-        this.cbMWI.setChecked(this.configurationService.getBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.MWI, Configuration.DEFAULT_RCS_MWI));
+        mEtConferenceFactory.setText(mConfigurationService.getString(ConfigurationEntry.RCS_CONF_FACT, ConfigurationUtils.DEFAULT_RCS_CONF_FACT));
+        mEtSMSC.setText(mConfigurationService.getString(ConfigurationEntry.RCS_SMSC, ConfigurationUtils.DEFAULT_RCS_SMSC));
+        mCbBinarySMS.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.RCS_USE_BINARY_SMS, ConfigurationUtils.DEFAULT_RCS_USE_BINARY_SMS));
+        mCbMsrpSuccessReports.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.RCS_USE_MSRP_SUCCESS, ConfigurationUtils.DEFAULT_RCS_USE_MSRP_SUCCESS));
+        mCbMsrpFailureReports.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.RCS_USE_MSRP_FAILURE, ConfigurationUtils.DEFAULT_RCS_USE_MSRP_FAILURE));
+        mCbMsrpOMFDR.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.RCS_USE_OMAFDR, ConfigurationUtils.DEFAULT_RCS_USE_OMAFDR));
+        mCbMWI.setChecked(mConfigurationService.getBoolean(ConfigurationEntry.RCS_USE_MWI, ConfigurationUtils.DEFAULT_RCS_USE_MWI));
         
-        this.addConfigurationListener(this.etConferenceFactory);
-        this.addConfigurationListener(this.etSMSC);
-        this.addConfigurationListener(this.cbBinarySMS);
-        this.addConfigurationListener(this.cbMsrpSuccessReports);
-        this.addConfigurationListener(this.cbMsrpFailureReports);
-        this.addConfigurationListener(this.cbMsrpOMFDR);
-        this.addConfigurationListener(this.cbMWI);
+        addConfigurationListener(mEtConferenceFactory);
+        addConfigurationListener(mEtSMSC);
+        addConfigurationListener(mCbBinarySMS);
+        addConfigurationListener(mCbMsrpSuccessReports);
+        addConfigurationListener(mCbMsrpFailureReports);
+        addConfigurationListener(mCbMsrpOMFDR);
+        addConfigurationListener(mCbMWI);
 	}
 	
+	@Override
 	protected void onPause() {
-		if(this.computeConfiguration){
+		if(super.mComputeConfiguration){
 			
-			this.configurationService.setString(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.CONF_FACT, this.etConferenceFactory.getText().toString());
-	        this.configurationService.setString(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.SMSC, this.etSMSC.getText().toString());
-	        this.configurationService.setBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.BINARY_SMS, this.cbBinarySMS.isChecked());
-	        this.configurationService.setBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.MSRP_SUCCESS, this.cbMsrpSuccessReports.isChecked());
-	        this.configurationService.setBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.MSRP_FAILURE, this.cbMsrpFailureReports.isChecked());
-	        this.configurationService.setBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.OMAFDR, this.cbMsrpOMFDR.isChecked());
-	        this.configurationService.setBoolean(CONFIGURATION_SECTION.RCS, CONFIGURATION_ENTRY.MWI, this.cbMWI.isChecked());
+			mConfigurationService.putString(ConfigurationEntry.RCS_CONF_FACT, mEtConferenceFactory.getText().toString());
+	        mConfigurationService.putString(ConfigurationEntry.RCS_SMSC, mEtSMSC.getText().toString());
+	        mConfigurationService.putBoolean(ConfigurationEntry.RCS_USE_BINARY_SMS, mCbBinarySMS.isChecked());
+	        mConfigurationService.putBoolean(ConfigurationEntry.RCS_USE_MSRP_SUCCESS, mCbMsrpSuccessReports.isChecked());
+	        mConfigurationService.putBoolean(ConfigurationEntry.RCS_USE_MSRP_FAILURE, mCbMsrpFailureReports.isChecked());
+	        mConfigurationService.putBoolean(ConfigurationEntry.RCS_USE_OMAFDR, mCbMsrpOMFDR.isChecked());
+	        mConfigurationService.putBoolean(ConfigurationEntry.RCS_USE_MWI, mCbMWI.isChecked());
 	        
 			// Compute
-			if(!this.configurationService.compute()){
-				Log.e(ScreenMessaging.TAG, "Failed to Compute() configuration");
+			if(!mConfigurationService.commit()){
+				Log.e(TAG, "Failed to commit() configuration");
 			}
 			
-			this.computeConfiguration = false;
+			super.mComputeConfiguration = false;
 		}
 		super.onPause();
 	}
